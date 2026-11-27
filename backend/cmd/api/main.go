@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"travel-itinerary-d1/backend/internal/config"
+	"travel-itinerary-d1/backend/internal/handler"
 	"travel-itinerary-d1/backend/internal/model"
 
 	"github.com/gofiber/fiber/v3"
@@ -53,12 +54,22 @@ func main() {
 		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 	}))
 
-	app.Get("/api/health", func(c fiber.Ctx) error {
+	api := app.Group("/api")
+
+	api.Get("/health", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"success": true,
 			"message": "Server Travel Itinerary D1 berjalan",
 		})
 	})
+
+	spotNoteHandler := handler.NewSpotNoteHandler(db)
+	spotNotes := api.Group("/spot-notes")
+	spotNotes.Get("/", spotNoteHandler.GetAll)
+	spotNotes.Get("/:id", spotNoteHandler.GetByID)
+	spotNotes.Post("/", spotNoteHandler.Create)
+	spotNotes.Put("/:id", spotNoteHandler.Update)
+	spotNotes.Delete("/:id", spotNoteHandler.Delete)
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
