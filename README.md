@@ -1,6 +1,6 @@
 ﻿# Travel Itinerary — Full-Stack Web Application
 
-**Travel Itinerary** adalah aplikasi web **full-stack** untuk mengelola rencana perjalanan wisata secara terstruktur—mulai dari registrasi/login pengguna, menyusun *itinerary*, menambahkan destinasi wisata (*spots*), hingga mencatat informasi penting seperti jam operasional, tiket, dan tips kunjungan pada setiap destinasi (*spot notes*).
+**Travel Itinerary** adalah aplikasi web **full-stack** untuk mengelola rencana perjalanan wisata secara terstruktur mulai dari registrasi/login pengguna, menyusun *itinerary*, menambahkan destinasi wisata (*spots*), hingga mencatat informasi penting seperti jam operasional, tiket, dan tips kunjungan pada setiap destinasi (*spot notes*).
 
 Proyek ini menggabungkan backend RESTful API berbasis **Go**, **Fiber v3**, **GORM**, dan **MySQL** (`travel_itinerary_db`) dengan antarmuka web **React + Vite** di folder `frontend/`.
 
