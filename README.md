@@ -1,41 +1,97 @@
-﻿## Project Overview
+﻿# Travel Itinerary — Full-Stack Web Application
 
-**Travel Itinerary Backend API** merupakan backend dari aplikasi Travel Itinerary yang berfungsi untuk mengelola data dan kebutuhan perjalanan wisata pengguna.
+**Travel Itinerary** adalah aplikasi web **full-stack** untuk mengelola rencana perjalanan wisata secara terstruktur—mulai dari registrasi/login pengguna, menyusun *itinerary*, menambahkan destinasi wisata (*spots*), hingga mencatat informasi penting seperti jam operasional, tiket, dan tips kunjungan pada setiap destinasi (*spot notes*).
 
-Aplikasi ini dibuat untuk membantu pengguna dalam menyusun rencana perjalanan secara lebih terstruktur, mulai dari membuat akun, menyusun itinerary perjalanan, menambahkan destinasi wisata, hingga menyimpan catatan penting pada setiap destinasi.
+Proyek ini menggabungkan backend RESTful API berbasis **Go**, **Fiber v3**, **GORM**, dan **MySQL** (`travel_itinerary_db`) dengan antarmuka web **React + Vite** di folder `frontend/`.
 
-Backend ini berperan sebagai penghubung antara frontend (tampilan aplikasi) dengan database. Seluruh proses pengelolaan data dilakukan melalui REST API yang dibangun menggunakan Go dan Fiber v3, dengan GORM sebagai ORM dan MySQL sebagai database.
+---
+
+## Project Overview
+
+Aplikasi ini dirancang agar pengguna dapat merencanakan perjalanan dengan rapi dan terhubung antar-entitas:
+
+- **Backend REST API:** Menangani logika bisnis, autentikasi, validasi input, relasi GORM, dan operasi database MySQL.
+- **Frontend Web App:** Menyediakan antarmuka interaktif (layout 2 kolom dengan tema warna hangat/ceria) untuk mengelola autentikasi/token, *itineraries*, *spots*, dan *spot notes*.
 
 ### Tujuan Project
 
 Project ini dikembangkan dengan beberapa tujuan utama:
 
 - Mempermudah pengguna dalam mengelola rencana perjalanan.
-- Menyimpan daftar destinasi wisata dalam setiap itinerary.
+- Menyimpan daftar destinasi wisata dalam setiap *itinerary*.
 - Menyediakan fitur catatan untuk setiap destinasi wisata.
 - Mengelola data pengguna dan relasi antar data secara terstruktur.
-- Menyediakan REST API yang dapat diintegrasikan dengan frontend.
-- Menerapkan konsep backend development menggunakan Go, Fiber, GORM, dan MySQL.
+- Menyediakan REST API yang terintegrasi dengan frontend.
+- Menerapkan pengembangan aplikasi full-stack menggunakan Go, Fiber v3, GORM, MySQL, dan React + Vite.
 
 ### Fitur Utama
 
 | Fitur | Deskripsi |
-|---|---|
-| User Management | Mengelola data pengguna aplikasi |
-| Authentication | Menangani proses autentikasi pengguna |
-| Itinerary Management | Membuat, melihat, mengubah, dan menghapus rencana perjalanan |
-| Spot Management | Mengelola daftar destinasi wisata dalam itinerary |
-| Spot Notes | Menambahkan dan mengelola catatan pada setiap destinasi wisata |
+| :--- | :--- |
+| **User Management** | Mengelola data pengguna aplikasi |
+| **Authentication** | Menangani proses registrasi, login, dan token autentikasi pengguna |
+| **Itinerary Management** | Membuat, melihat, mengubah, dan menghapus rencana perjalanan |
+| **Spot Management** | Mengelola daftar destinasi wisata dalam *itinerary* |
+| **Spot Notes** | Menambahkan dan mengelola catatan (termasuk jam operasional & tips) pada setiap destinasi wisata |
+
+---
+
+## Pembagian Modul Tim
+
+| Modul | Tabel / Area | Penanggung Jawab | Fokus Utama |
+| :--- | :--- | :--- | :--- |
+| **Auth & JWT** | `users` | Fikri | Autentikasi, middleware/JWT (`auth.go`), & manajemen pengguna |
+| **Itineraries** | `itineraries` | Nabil | CRUD rencana perjalanan |
+| **Spots** | `spots` | Aurellia | CRUD destinasi wisata dalam *itinerary* |
+| **Spot Notes** | `spot_notes` | Modul `spot_notes` | CRUD catatan spot, `Preload("Spot")`, validasi input, & error handling (`400`, `404`, `422`) |
+| **Frontend & Integrasi** | UI React + Vite (`frontend/`) | Frontend | Integrasi API, manajemen token JWT, CRUD berjenjang, styling, & persiapan deployment |
+
+---
+
+## Struktur Direktori Proyek
+
+```text
+travel-itinerary-fiber-d1/
+├── README.md
+├── backend/
+│   ├── cmd/
+│   │   └── api/
+│   │       └── main.go                 # Entry point, CORS & middleware, AutoMigrate, dan routing
+│   └── internal/
+│       ├── config/
+│       │   └── db.go                   # Konfigurasi environment & koneksi MySQL (GORM)
+│       ├── handler/                    # HTTP handler (auth, itineraries, spots, spot_note_handler.go)
+│       ├── middleware/
+│       │   └── auth.go                 # Middleware autentikasi
+│       ├── model/
+│       │   └── models.go               # Definisi model GORM (User, Itinerary, Spot, SpotNote)
+│       ├── repository/                 # Query & akses data database
+│       └── service/                    # Logika bisnis tiap modul
+└── frontend/
+    ├── .env.example
+    ├── index.html
+    ├── package.json
+    ├── vite.config.js
+    └── src/
+        ├── App.jsx
+        ├── index.css
+        ├── main.jsx
+        ├── services/
+        │   └── api.js                  # Helper HTTP, Bearer token, & normalisasi JSON
+        └── components/
+            ├── AuthPanel.jsx
+            ├── ItinerarySection.jsx
+            ├── SpotSection.jsx
+            └── SpotNoteSection.jsx
+```
 
 ---
 
 ## How the System Works
 
-Secara umum, sistem bekerja dengan menerima request dari frontend, memproses request melalui backend, berinteraksi dengan database MySQL, kemudian mengembalikan hasilnya dalam format JSON.
+Secara umum, sistem bekerja dengan menerima *request* dari frontend, memprosesnya melalui backend Go + Fiber v3, berinteraksi dengan database MySQL melalui GORM, lalu mengembalikan hasilnya dalam format JSON.
 
 ### 1. Gambaran Umum Sistem
-
-Berikut gambaran komunikasi antarbagian aplikasi:
 
 ```text
 +----------------------+
@@ -46,15 +102,14 @@ Berikut gambaran komunikasi antarbagian aplikasi:
            v
 +----------------------+
 |      FRONTEND        |
-|  Tampilan Aplikasi   |
+|  React + Vite UI     |
 +----------+-----------+
            |
-           | HTTP Request
-           | (JSON)
+           | HTTP Request (JSON / Bearer Token)
            v
 +----------------------+
 |       BACKEND        |
-|       Go + Fiber     |
+|    Go + Fiber v3     |
 +----------+-----------+
            |
            v
@@ -93,8 +148,6 @@ Berikut gambaran komunikasi antarbagian aplikasi:
 
 ### 2. Alur Kerja Data Aplikasi
 
-Pengelolaan data dalam aplikasi mengikuti struktur relasi berikut:
-
 ```text
 USER
  |
@@ -117,55 +170,24 @@ DATA TERSIMPAN DI DATABASE
 
 Penjelasan setiap tahap:
 
-**A. User**
-
-Pengguna melakukan registrasi atau login melalui fitur autentikasi. Data pengguna disimpan dalam tabel `users`.
-
-**B. Itinerary**
-
-Setelah pengguna berhasil masuk, pengguna dapat membuat rencana perjalanan. Contohnya, pengguna membuat itinerary untuk perjalanan ke Bali selama 3 hari.
-
-Data itinerary disimpan dalam tabel `itineraries` dan terhubung dengan user melalui relasi foreign key.
-
-**C. Spots**
-
-Di dalam itinerary, pengguna dapat menambahkan beberapa destinasi wisata yang ingin dikunjungi.
-
-Contohnya:
-- Pantai Kuta
-- Tanah Lot
-- Ubud
-- Garuda Wisnu Kencana
-
-Data destinasi disimpan dalam tabel `spots` dan terhubung dengan itinerary.
-
-**D. Spot Notes**
-
-Setiap destinasi dapat memiliki catatan tambahan yang berisi informasi penting, seperti:
-- Tips mengunjungi tempat wisata.
-- Jam operasional.
-- Informasi tiket masuk.
-- Hal-hal yang perlu dipersiapkan sebelum berkunjung.
-
-Data catatan disimpan dalam tabel `spot_notes` dan terhubung dengan spot melalui `spot_id`.
+- **A. User:** Pengguna melakukan registrasi atau login melalui fitur autentikasi. Data pengguna disimpan pada tabel `users`.
+- **B. Itinerary:** Setelah masuk, pengguna membuat rencana perjalanan (misalnya perjalanan ke Bali selama 3 hari). Data disimpan pada tabel `itineraries` dan terhubung dengan `users` melalui `user_id`.
+- **C. Spots:** Di dalam *itinerary*, pengguna menambahkan destinasi wisata yang ingin dikunjungi (contoh: Pantai Kuta, Tanah Lot, Ubud, Garuda Wisnu Kencana). Data disimpan pada tabel `spots` dan terhubung dengan `itineraries` melalui `itinerary_id`.
+- **D. Spot Notes:** Setiap destinasi dapat memiliki catatan tambahan seperti tips kunjungan, jam operasional, informasi tiket masuk, dan persiapan perjalanan. Data disimpan pada tabel `spot_notes` dan terhubung dengan `spots` melalui `spot_id`.
 
 ### 3. Alur Request dan Response API
 
-Setiap komunikasi antara frontend dan backend menggunakan protokol HTTP dengan format JSON.
-
-Contoh alur ketika pengguna menambahkan catatan destinasi:
+Komunikasi antara frontend dan backend menggunakan protokol HTTP dengan format JSON. Contoh alur penambahan catatan destinasi:
 
 1. Pengguna mengisi form catatan pada frontend.
-2. Frontend mengirim HTTP request `POST` ke endpoint `/api/spot-notes`.
+2. Frontend mengirim HTTP request `POST` ke endpoint `/api/spot-notes` (menyertakan `Authorization: Bearer <token>` bila diperlukan).
 3. Backend menerima request melalui handler Spot Notes.
-4. Backend memeriksa format JSON dan melakukan validasi input.
-5. Backend memeriksa apakah `spot_id` yang dikirim tersedia di database.
+4. Backend memvalidasi format JSON dan input yang dikirim.
+5. Backend memeriksa apakah `spot_id` tersedia di database.
 6. Jika valid, GORM menyimpan data ke tabel `spot_notes`.
-7. Backend mengambil relasi Spot menggunakan `Preload("Spot")` jika diperlukan.
-8. Backend mengirim response JSON dengan status `201 Created`.
-9. Frontend menerima response dan menampilkan informasi bahwa catatan berhasil dibuat.
-
-**Ilustrasi alur:**
+7. Backend memuat relasi Spot menggunakan `Preload("Spot")` jika diperlukan.
+8. Backend mengembalikan response JSON dengan status `201 Created` (atau kode status yang sesuai seperti `400`, `404`, `422` bila terjadi error/validasi gagal).
+9. Frontend menerima response dan memperbarui tampilan daftar catatan.
 
 ```text
 USER
@@ -203,14 +225,18 @@ FRONTEND MENAMPILKAN HASIL
 
 ### 4. Struktur Relasi Database
 
-Database menggunakan konsep relasi antar tabel untuk menjaga keterhubungan data.
+Urutan migrasi otomatis (`AutoMigrate`) di `backend/cmd/api/main.go`:
+1. `&model.User{}`
+2. `&model.Itinerary{}`
+3. `&model.Spot{}`
+4. `&model.SpotNote{}`
 
 | Tabel | Primary Key | Foreign Key | Relasi |
-|---|---|---|---|
+| :--- | :--- | :--- | :--- |
 | `users` | `id` | - | Induk |
-| `itineraries` | `id` | `user_id` | Terhubung ke Users |
-| `spots` | `id` | `itinerary_id` | Terhubung ke Itineraries |
-| `spot_notes` | `id` | `spot_id` | Terhubung ke Spots |
+| `itineraries` | `id` | `user_id` | Terhubung ke `users` |
+| `spots` | `id` | `itinerary_id` | Terhubung ke `itineraries` |
+| `spot_notes` | `id` | `spot_id` | Terhubung ke `spots` |
 
 Contoh hubungan data:
 
@@ -238,58 +264,87 @@ spot_notes
   title: Tips Datang Pagi
 ```
 
-Dengan struktur ini, satu pengguna dapat memiliki beberapa itinerary, satu itinerary dapat memiliki beberapa destinasi, dan satu destinasi dapat memiliki beberapa catatan.
-
 ### 5. Alur Kerja Backend
 
-Dari sisi teknis, proses backend berjalan melalui beberapa tahapan:
+1. **Application Initialization:** Aplikasi dijalankan melalui `main.go`, memuat konfigurasi *environment*, menginisialisasi Fiber v3, dan mengatur CORS/middleware.
+2. **Database Connection:** Backend terhubung ke MySQL menggunakan GORM (`backend/internal/config/db.go`).
+3. **Auto Migration:** GORM menjalankan `AutoMigrate()` untuk menyelaraskan tabel dengan model.
+4. **Middleware:** Request melewati middleware yang terdaftar (termasuk CORS dan autentikasi pada route yang diproteksi).
+5. **Routing:** Fiber mengarahkan request ke handler sesuai HTTP method dan path endpoint.
+6. **Handler Processing:** Handler memproses request, memvalidasi payload, dan memanggil service/repository.
+7. **Database Operation:** GORM menjalankan query untuk operasi create, read, update, dan delete.
+8. **JSON Response:** Backend mengembalikan respons JSON beserta HTTP status code yang sesuai.
 
-1. **Application Initialization**  
-   Aplikasi dijalankan melalui `main.go`, kemudian memuat konfigurasi environment dan menginisialisasi Fiber.
+---
 
-2. **Database Connection**  
-   Backend membuat koneksi ke MySQL menggunakan GORM.
+## Menjalankan Aplikasi Secara Lokal
 
-3. **Auto Migration**  
-   GORM menjalankan `AutoMigrate()` untuk memastikan tabel sesuai dengan struktur model.
+### 1. Backend (Go + Fiber v3 + MySQL)
 
-4. **Middleware**  
-   Request melewati middleware yang digunakan, termasuk middleware autentikasi jika diterapkan pada route terkait.
+Pastikan layanan **MySQL** aktif dan database `travel_itinerary_db` sudah tersedia, lalu jalankan dari folder `backend/`:
 
-5. **Routing**  
-   Fiber mengarahkan request ke handler berdasarkan HTTP method dan endpoint.
+```bash
+cd backend
+go mod download
+go run ./cmd/api/main.go
+```
 
-6. **Handler Processing**  
-   Handler memproses request, memvalidasi input, dan menjalankan operasi database.
+Pastikan variabel lingkungan (`APP_PORT`, `CORS_ORIGIN`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, serta konfigurasi JWT bila dipakai) sudah sesuai, dan `CORS_ORIGIN` mengizinkan `http://localhost:5173`.
 
-7. **Database Operation**  
-   GORM menjalankan query untuk mengambil, menambahkan, memperbarui, atau menghapus data.
+### 2. Frontend (React + Vite)
 
-8. **JSON Response**  
-   Backend mengembalikan hasil pemrosesan kepada frontend dalam format JSON beserta HTTP status code yang sesuai.
+Jalankan dari folder `frontend/`:
+
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Atur `VITE_API_BASE_URL` di `frontend/.env` sesuai base URL API backend (contoh: `http://127.0.0.1:8080/api`). Aplikasi frontend akan berjalan di `http://localhost:5173`.
 
 ---
 
 ## Contoh Skenario Penggunaan Aplikasi
 
-Misalnya seorang pengguna ingin membuat perjalanan wisata ke Bali.
+1. Pengguna membuka aplikasi frontend dan melakukan registrasi atau login.
+2. Pengguna membuat *itinerary* dengan judul **"Liburan ke Bali"**.
+3. Pengguna memilih *itinerary* tersebut dan menambahkan destinasi seperti **Pantai Kuta** dan **Tanah Lot**.
+4. Pengguna memilih destinasi **Pantai Kuta** dan menambahkan catatan berjudul **"Tips Datang Pagi"** beserta jam operasional dan detail catatan.
+5. Backend menyimpan catatan ke tabel `spot_notes` dengan relasi ke `spots`.
+6. Saat data dimuat ulang, informasi *itinerary*, *spot*, dan catatan tampil terhubung sesuai hierarki database.
 
-1. Pengguna melakukan registrasi dan login.
-2. Pengguna membuat itinerary dengan judul "Liburan ke Bali".
-3. Pengguna menambahkan beberapa destinasi seperti Pantai Kuta dan Tanah Lot.
-4. Pengguna membuka detail destinasi Pantai Kuta.
-5. Pengguna menambahkan catatan berjudul "Tips Datang Pagi".
-6. Backend menyimpan catatan tersebut dan menghubungkannya dengan Pantai Kuta.
-7. Ketika pengguna membuka kembali detail destinasi, backend mengambil informasi spot beserta catatan yang berkaitan.
+---
 
-Dengan alur tersebut, seluruh informasi perjalanan dapat dikelola secara terstruktur dan saling terhubung melalui database.
+## Panduan Deployment (Full-Stack)
+
+Ketentuan proyek mewajibkan aplikasi **full-stack** dan **keduanya di-deploy**:
+
+1. **Database MySQL & Backend Go:**
+   - Siapkan database MySQL yang dapat diakses oleh layanan backend.
+   - *Deploy* backend Go ke platform hosting yang mendukung aplikasi Go/container, lalu atur *environment variable* produksi (`APP_PORT`, `DB_*`, rahasia JWT jika ada, dan `CORS_ORIGIN` yang mengizinkan domain frontend).
+2. **Frontend React + Vite:**
+   - Set `VITE_API_BASE_URL` mengarah ke URL publik backend API.
+   - Jalankan `npm run build` di folder `frontend/` untuk menghasilkan aset statis di `dist/`, lalu *deploy* ke layanan hosting statis/frontend.
+3. **Catatan Deployment (Isi Setelah Live):**
+   - Frontend URL: `https://<url-frontend>`
+   - Backend API URL: `https://<url-backend>/api`
+
+---
+
+## Alur Git
+
+```bash
+git status
+git pull origin main
+git add README.md backend frontend
+git commit -m "docs: update full-stack README with architecture, setup, and deployment"
+git push origin main
+```
 
 ---
 
 ## Kesimpulan
 
-Travel Itinerary Backend API merupakan sistem backend yang dirancang untuk mendukung pengelolaan rencana perjalanan wisata secara terstruktur.
-
-Dengan menggunakan Go, Fiber v3, GORM, dan MySQL, aplikasi ini menyediakan layanan REST API untuk mengelola pengguna, itinerary, destinasi wisata, serta catatan pada setiap destinasi.
-
-Struktur data yang berjenjang memungkinkan setiap informasi saling terhubung melalui relasi database, sehingga mempermudah pengelolaan data dan integrasi dengan frontend.
+**Travel Itinerary** menyatukan backend REST API berbasis **Go**, **Fiber v3**, **GORM**, dan **MySQL** dengan antarmuka **React + Vite** dalam satu struktur proyek yang terorganisir. Relasi data berjenjang (`users` → `itineraries` → `spots` → `spot_notes`) memudahkan pengelolaan rencana perjalanan secara terstruktur sekaligus mendukung integrasi dan *deployment* aplikasi secara menyeluruh.
