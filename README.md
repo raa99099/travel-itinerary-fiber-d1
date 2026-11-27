@@ -43,7 +43,7 @@ Project ini dikembangkan dengan beberapa tujuan utama:
 | **Auth & JWT** | `users` | Fikri | Autentikasi, middleware/JWT (`auth.go`), & manajemen pengguna |
 | **Itineraries** | `itineraries` | Nabil | CRUD rencana perjalanan |
 | **Spots** | `spots` | Aurellia | CRUD destinasi wisata dalam *itinerary* |
-| **Spot Notes** | `spot_notes` | Modul `spot_notes` | CRUD catatan spot, `Preload("Spot")`, validasi input, & error handling (`400`, `404`, `422`) |
+| **Spot Notes** | `spot_notes` | Reva ar | CRUD catatan spot, `Preload("Spot")`, validasi input, & error handling (`400`, `404`, `422`) |
 | **Frontend & Integrasi** | UI React + Vite (`frontend/`) | Frontend | Integrasi API, manajemen token JWT, CRUD berjenjang, styling, & persiapan deployment |
 
 ---
