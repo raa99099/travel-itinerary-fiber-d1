@@ -63,6 +63,14 @@ func main() {
 		})
 	})
 
+	itineraryHandler := handler.NewItineraryHandler(db)
+	itineraries := api.Group("/itineraries")
+	itineraries.Get("/", itineraryHandler.GetAll)
+	itineraries.Get("/:id", itineraryHandler.GetByID)
+	itineraries.Post("/", itineraryHandler.Create)
+	itineraries.Put("/:id", itineraryHandler.Update)
+	itineraries.Delete("/:id", itineraryHandler.Delete)
+
 	spotNoteHandler := handler.NewSpotNoteHandler(db)
 	spotNotes := api.Group("/spot-notes")
 	spotNotes.Get("/", spotNoteHandler.GetAll)
