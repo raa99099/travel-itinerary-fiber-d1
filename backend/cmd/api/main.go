@@ -6,6 +6,7 @@ import (
 
 	"travel-itinerary-d1/backend/internal/config"
 	"travel-itinerary-d1/backend/internal/handler"
+	"travel-itinerary-d1/backend/internal/middleware"
 	"travel-itinerary-d1/backend/internal/model"
 
 	"github.com/gofiber/fiber/v3"
@@ -63,6 +64,21 @@ func main() {
 		})
 	})
 
+	// ==========================================
+	// AUTH ROUTES - JOBDESK FIKRI
+	// ==========================================
+
+	authHandler := handler.NewAuthHandler(db)
+	auth := api.Group("/auth")
+
+	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
+	auth.Get("/me", middleware.JWTProtected(), authHandler.Me)
+
+	// ==========================================
+	// ROUTES ITINERARY - BAGIAN ANGGOTA LAIN
+	// ==========================================
+
 	itineraryHandler := handler.NewItineraryHandler(db)
 	itineraries := api.Group("/itineraries")
 	itineraries.Get("/", itineraryHandler.GetAll)
@@ -70,6 +86,10 @@ func main() {
 	itineraries.Post("/", itineraryHandler.Create)
 	itineraries.Put("/:id", itineraryHandler.Update)
 	itineraries.Delete("/:id", itineraryHandler.Delete)
+
+	// ==========================================
+	// ROUTES SPOT NOTES - BAGIAN ANGGOTA LAIN
+	// ==========================================
 
 	spotNoteHandler := handler.NewSpotNoteHandler(db)
 	spotNotes := api.Group("/spot-notes")
